@@ -94,3 +94,21 @@ def User_circuit(problem,depth):#function presents user with available gates and
                 print("Gate choices not available")
         
     return solution
+
+def string_checker(string,measurement):
+    for i in range(len(string)):
+        if int(string[i]) != measurement[i]:
+            return 0
+    return 1
+
+def get_dist(program,qubits):
+    bits = [x for x in range(qubits)]
+    strs = [bin(x)[2:].zfill(qubits) for x in range(2**qubits)]
+    probs = []
+    qvm = QVMConnection()
+    out = qvm.run(program, bits, trials=100)
+    for i in strs:
+        matches = [x for x in out if string_checker(i,x)]
+        probs.append(len(matches)/len(out))
+        print("String {} occurs with probability {}".format(i,probs[-1]))
+    return probs
