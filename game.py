@@ -3,4 +3,12 @@ from pyquil.gates import H, CNOT,...
 from pyquil.api import QVMConnection
 import numpy
 
-CODE GOES HERE!!
+def genQUIL(layers):
+
+    program = Program()
+
+    for layer in layers:
+
+       program.inst(layer)
+
+    return program
