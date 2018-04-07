@@ -1,8 +1,9 @@
 from pyquil.quil import Program
-from pyquil.gates import H
+from pyquil.gates import *
 from pyquil.api import QVMConnection
 import numpy
 import random
+from scipy.stats import chisquare 
 
 def gen_layer(gate_shop, qubits):
     layer = []
@@ -25,3 +26,41 @@ def gen_circuit(qubits, depth):
     for i in range(depth):
         circuit.append(gen_layer(gate_shop,qubits))
     return circuit
+
+def genQUIL(layers): #takes a list of gates in format [[H(1),I(2)],[H(2),I(1)],[CNOT(1,2),Y(3)]] converts to QUIL
+
+    program = Program()
+
+    for layer in layers:
+
+       program.inst(layer)
+
+    return program
+
+def Compare_stats(dist_user,dist_ref): #function takes user and reference distributions in format [0.8,0.4,0.7] and compares them.
+
+    result = chisquare(dist_user,dist_ref)
+    
+    return result
+
+def Victory(result,tolerance):  #takes the results of stats test and the required tolerance of success 
+    success = False
+
+    if (result[1] > tolerance):
+        success = True
+    else:
+        success = False 
+
+    return success
+
+def jake_test():  #probably bad practise to put my test here but oh well.
+
+
+    test_user = [0.8,0.4,0.7]
+    test_ref = [0.6,0.3,0.2]
+    test_circuit = [[H(1),I(2)],[H(2),I(1)],[CNOT(1,2),Y(3)]]
+
+    prog = genQUIL(test_circuit)
+    res = Compare_stats(test_user,test_ref)
+    suc = Victory(res,0.95)
+    print (prog,res[1],suc)
