@@ -7,28 +7,6 @@ from scipy.stats import chisquare
 from random import shuffle
 from gen_levels import *
 
-def layer_input(layer,available_gates,solution):
-    print ('layer',layer)
-    print ('Available gates:')
-    print(available_gates)
-    gates = input("Please enter gates in layer " + str(layer) + " in format GATE qubit,GATE qubit:")
-    print()
-
-    gatelist = gates.split(",")
-    print(gatelist)
-
-    for gate in gatelist:
-        if gate.split(' ', 1)[0] not in available_gates:
-            print("Gate choice " + gate + " not available")
-            layer_input(layer,available_gates)
-        
-
-    for gate in gatelist: 
-        if gate.split(' ', 1)[0] in available_gates: 
-            available_gates.remove(gate.split(' ', 1)[0])  
-            solution.inst(gate)  
-    return solution
-
 def User_circuit(problem,depth,qubits):#function presents user with available gates and makes them create their circuit layer by layer.
 
     available_gates=[]
@@ -40,7 +18,21 @@ def User_circuit(problem,depth,qubits):#function presents user with available ga
     solution=Program()
 
     for layer in range(depth):
-        solution = layer_input(layer,available_gates,solution)
+        print ('layer',layer)
+        print ('Available gates:')
+        print(available_gates)
+        gates = input("Please enter gates in layer" + str(layer) + "in format[GATE qubit,GATE qubit]:")
+        print()
+
+        gates.split(' ', 1)
+        layer = gates.split(",")
+
+        for gate in layer:
+            if gate.split(' ', 1)[0] in available_gates: 
+                available_gates.remove(gate.split(' ', 1)[0])  
+                solution.inst(gate)  
+            else:
+                print("Gate choice," +  gate + "not available")
 
     for i in range(qubits):
         solution.measure(i,i)
@@ -49,7 +41,6 @@ def User_circuit(problem,depth,qubits):#function presents user with available ga
 
 
 def menu():
-    print("\n\n\n\n\n")
     print("--------MENU--------")
     print("Play tutorial (1)")
     print("Play random (2)")
@@ -65,26 +56,11 @@ def menu():
     if selection == 3:
       exit()
 
-def retry(problem,problem_stats,depth,qubits):
-    again = input("Try again (y/n)?")
-    if again == 'y' or 'Y':
-        user_attempt(problem,problem_stats,depth,qubits)
-    elif again == 'n' or 'N':
-        menu()
-    else:
-        print("Invalid input")
-        retry()
-
 def user_attempt(problem,problem_stats,depth,qubits):
     solution = User_circuit(problem,depth,qubits)
     solution_stats = get_dist(solution,qubits)
     success = Compare_stats(solution_stats,problem_stats)
-    if success:
-        print("Congratulations, you are correct!")
-        menu()
-    else:
-        print("Incorrect")
-        retry(problem,problem_stats,depth,qubits)
+    return success
 
 def random_circuit():
     qubits = int(input("Number of qubits:"))
@@ -92,18 +68,14 @@ def random_circuit():
 
     circa = gen_circuit(qubits,depth)
     problem = genQUIL(circa,qubits)
-    problem_stats = get_dist(problem,qubits)     
+    print (problem)
+    problem_stats = get_dist(problem,qubits)     #THESE WILL BE REPLACED BY FUNCTIONS WHICH TAKE SOLUTION AND PROBLEM AS INPUTS
+    print(problem_stats)
+
     res = user_attempt(problem,problem_stats,depth,qubits)
     if res:
         print("Congratulations, you are correct!")
-        menu()
     else:
-        retry = input("Incorrect. Try again? (y/n)")
-        if retry == 'y' or 'Y':
-            function
-        elif retry == 'n' or 'N':
-            menu()
-        else:
-            print("That is not a valid response")
+        print("Incorrect. Try again?")
 
 menu()
