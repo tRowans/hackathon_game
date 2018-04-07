@@ -92,14 +92,12 @@ def User_circuit(problem,depth):#function presents user with available gates and
                 available_gates.remove(gate.split(' ', 1)[0])  
                 solution.inst(gate)  
             else:
-                print("Gate not available")
+                print("Gate choices not available")
         
-    
-
-    print(solution)
     return solution
 
 circa = gen_circuit(3,3)
-prog = genQUIL(circa)
-User_circuit(prog,3)
-print(prog)
+problem = genQUIL(circa)
+solution = User_circuit(problem,3)
+print(problem)
+print(solution)
