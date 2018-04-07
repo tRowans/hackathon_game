@@ -66,24 +66,40 @@ def jake_test():  #probably bad practise to put my test here but oh well.
     suc = Test_for_victory(res,0.95)
     print (prog,res[1],suc)
 
-<<<<<<< HEAD
-def User_circuit(gates,depth,program):#function presents user with available gates and makes them create their circuit layer by layer.
+
+def User_circuit(problem,depth):#function presents user with available gates and makes them create their circuit layer by layer.
 
     available_gates=[]
-    available_qubits= range(0,depth)
-    for gate in program.instructions:
+    for gate in problem.instructions:
         available_gates.append(gate.name)
     
-
     shuffle(available_gates)
+
+    solution=Program()
 
     for layer in range(depth):
         print ('layer',layer)
         print ('Available gates:')
         print(available_gates)
-        print ('Available quits:')
-        print(available_qubits)
+        gates = input("Please enter solution for layer 1 in format[GATE qubit,GATE qubit]:")
+        print()
 
+        gates.split(' ', 1)
+        layer = gates.split(",")
 
+        for gate in layer:
+            if gate.split(' ', 1)[0] in available_gates: 
+                available_gates.remove(gate.split(' ', 1)[0])  
+                solution.inst(gate)  
+            else:
+                print("Gate not available")
+        
+    
 
+    print(solution)
+    return solution
 
+circa = gen_circuit(3,3)
+prog = genQUIL(circa)
+User_circuit(prog,3)
+print(prog)
