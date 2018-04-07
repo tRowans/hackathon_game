@@ -38,6 +38,25 @@ def genQUIL(layers): #takes a list of gates in format [[H(1),I(2)],[H(2),I(1)],[
 
     return program
 
+def string_checker(string,measurement):
+    for i in range(len(string)):
+        if int(string[i]) != measurement[i]:
+            return 0
+    return 1
+
+def get_dist(program,qubits):
+    bits = [x for x in range(qubits)]
+    strs = [bin(x)[2:].zfill(qubits) for x in range(2**qubits)]
+    probs = []
+    qvm = QVMConnection()
+    out = qvm.run(program, bits, trials=100)
+    for i in strs:
+        matches = [x for x in out if string_checker(i,x)]
+        probs.append(len(matches)/len(out))
+        print("String {} occurs with probability {}".format(i,probs[-1]))
+    return probs
+
+
 def Compare_stats(dist_user,dist_ref): #function takes user and reference distributions in format [0.8,0.4,0.7] and compares them.
 
     result = chisquare(dist_user,dist_ref)
@@ -65,7 +84,6 @@ def jake_test():  #probably bad practise to put my test here but oh well.
     res = Compare_stats(test_user,test_ref)
     suc = Test_for_victory(res,0.95)
     print (prog,res[1],suc)
-
 
 def User_circuit(problem,depth):#function presents user with available gates and makes them create their circuit layer by layer.
 
@@ -96,6 +114,7 @@ def User_circuit(problem,depth):#function presents user with available gates and
         
     return solution
 
+
 def menu():
     print("--------MENU--------")
     print("Play tutorial (1)")
@@ -112,33 +131,28 @@ def menu():
     if selection == 3:
       exit()
 
-def user_attempt(problem,problem_stats):
+def user_attempt(problem,problem_stats,depth,qubits):
     solution = User_circuit(problem,depth)
-    stats_solu = [0.8,0.4,0.7]
-    result = compare_stats(dist_solu,dist_prob)
-    success = test_for_victory(result,0.95)
+    solution_stats = get_dist(solution,qubits)
+    result = Compare_stats(solution_stats,problem_stats)
+    success = Test_for_victory(result,0.95)
 
     return success
 
 def random_circuit():
     qubits = int(input("Number of qubits:"))
     depth = int(input("Circuit depth:"))
+
     circa = gen_circuit(qubits,depth)
     problem = genQUIL(circa)
-    solution = User_circuit(problem,depth)
-    problem_stats = [0.6,0.3,0.2]     #THESE WILL BE REPLACED BY FUNCTIONS WHICH TAKE SOLUTION AND PROBLEM AS INPUTS
-    user_attempt(problem,problem_stats)
-    
+    print (problem)
+    problem_stats = get_dist(problem,qubits)     #THESE WILL BE REPLACED BY FUNCTIONS WHICH TAKE SOLUTION AND PROBLEM AS INPUTS
+    print(problem_stats)
 
-    if (success = True) :
-       print("Congratulations")
-       menu()  
-    else if (Success = False):
-       choice = input("Unlucky! Would you like to try again? (y/n)
-         if choice == "y":
-               user_attempt()
-         else if choice =="n":
-               exit()
-         else:
-               print("Invalid choice")
-main()
+    res = user_attempt(problem,problem_stats,depth,qubits)
+    
+    print (res)
+
+menu()
+
+
