@@ -17,11 +17,11 @@ def gen_layer(gate_shop, qubits):
     for i in range(len(layer)):
         gate_sites = random.sample(sites, gate_shop[layer[i]])
         sites = [x for x in sites if x not in gate_sites]
-        layer[i] = layer[i]+"("+str(gate_sites)[1:-1]+")"
+        layer[i] = layer[i](eval(str(gate_sites)[1:-1]))
     return layer
 
 def gen_circuit(qubits, depth):
-    gate_shop = {"I":1, "X":1, "Y":1, "Z":1, "H":1} #Gates are keys, costs are values
+    gate_shop = {I:1, X:1, Y:1, Z:1, H:1} #Gates are keys, costs are values
     circuit = []
     for i in range(depth):
         circuit.append(gen_layer(gate_shop,qubits))
@@ -64,3 +64,5 @@ def jake_test():  #probably bad practise to put my test here but oh well.
     res = Compare_stats(test_user,test_ref)
     suc = Victory(res,0.95)
     print (prog,res[1],suc)
+
+print(gen_circuit(3,1))
