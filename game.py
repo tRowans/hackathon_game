@@ -64,5 +64,3 @@ def jake_test():  #probably bad practise to put my test here but oh well.
     res = Compare_stats(test_user,test_ref)
     suc = Victory(res,0.95)
     print (prog,res[1],suc)
-
-print(gen_circuit(3,1))
