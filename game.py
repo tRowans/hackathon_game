@@ -4,6 +4,7 @@ from pyquil.api import QVMConnection
 import numpy
 import random
 from scipy.stats import chisquare 
+from random import shuffle
 
 def gen_layer(gate_shop, qubits):
     layer = []
@@ -43,7 +44,7 @@ def Compare_stats(dist_user,dist_ref): #function takes user and reference distri
     
     return result
 
-def Victory(result,tolerance):  #takes the results of stats test and the required tolerance of success 
+def Test_for_victory(result,tolerance):  #takes the results of stats test and the required tolerance of success 
     success = False
 
     if (result[1] > tolerance):
@@ -62,5 +63,34 @@ def jake_test():  #probably bad practise to put my test here but oh well.
 
     prog = genQUIL(test_circuit)
     res = Compare_stats(test_user,test_ref)
-    suc = Victory(res,0.95)
+    suc = Test_for_victory(res,0.95)
     print (prog,res[1],suc)
+
+def User_circuit(problem,depth):#function presents user with available gates and makes them create their circuit layer by layer.
+
+    available_gates=[]
+    for gate in problem.instructions:
+        available_gates.append(gate.name)
+    
+    shuffle(available_gates)
+
+    solution=Program()
+
+    for layer in range(depth):
+        print ('layer',layer)
+        print ('Available gates:')
+        print(available_gates)
+        gates = input("Please enter solution for layer 1 in format[GATE qubit,GATE qubit]:")
+        print()
+
+        gates.split(' ', 1)
+        layer = gates.split(",")
+
+        for gate in layer:
+            if gate.split(' ', 1)[0] in available_gates: 
+                available_gates.remove(gate.split(' ', 1)[0])  
+                solution.inst(gate)  
+            else:
+                print("Gate choices not available")
+        
+    return solution
