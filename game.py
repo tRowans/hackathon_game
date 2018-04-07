@@ -28,13 +28,15 @@ def gen_circuit(qubits, depth):
         circuit.append(gen_layer(gate_shop,qubits))
     return circuit
 
-def genQUIL(layers): #takes a list of gates in format [[H(1),I(2)],[H(2),I(1)],[CNOT(1,2),Y(3)]] converts to QUIL
+def genQUIL(layers,qubits): #takes a list of gates in format [[H(1),I(2)],[H(2),I(1)],[CNOT(1,2),Y(3)]] converts to QUIL
 
     program = Program()
 
     for layer in layers:
-
        program.inst(layer)
+    
+    for i in range(qubits):
+        program.measure(i,i)
 
     return program
 
@@ -49,7 +51,7 @@ def get_dist(program,qubits):
     strs = [bin(x)[2:].zfill(qubits) for x in range(2**qubits)]
     probs = []
     qvm = QVMConnection()
-    out = qvm.run(program, bits, trials=100)
+    out = qvm.run(program, bits, trials=10000)
     for i in strs:
         matches = [x for x in out if string_checker(i,x)]
         probs.append(len(matches)/len(out))
@@ -58,37 +60,16 @@ def get_dist(program,qubits):
 
 
 def Compare_stats(dist_user,dist_ref): #function takes user and reference distributions in format [0.8,0.4,0.7] and compares them.
+    for i in range(len(dist_user)):
+        comp = abs(dist_user[i]-dist_ref[i])
+        if comp > 0.01:
+            return 0
+    return 1
 
-    result = chisquare(dist_user,dist_ref)
-    
-    return result
-
-def Test_for_victory(result,tolerance):  #takes the results of stats test and the required tolerance of success 
-    success = False
-
-    if (result[1] > tolerance):
-        success = True
-    else:
-        success = False 
-
-    return success
-
-def jake_test():  #probably bad practise to put my test here but oh well.
-
-
-    test_user = [0.8,0.4,0.7]
-    test_ref = [0.6,0.3,0.2]
-    test_circuit = [[H(1),I(2)],[H(2),I(1)],[CNOT(1,2),Y(3)]]
-
-    prog = genQUIL(test_circuit)
-    res = Compare_stats(test_user,test_ref)
-    suc = Test_for_victory(res,0.95)
-    print (prog,res[1],suc)
-
-def User_circuit(problem,depth):#function presents user with available gates and makes them create their circuit layer by layer.
+def User_circuit(problem,depth,qubits):#function presents user with available gates and makes them create their circuit layer by layer.
 
     available_gates=[]
-    for gate in problem.instructions:
+    for gate in problem.instructions[:-qubits]:
         available_gates.append(gate.name)
     
     shuffle(available_gates)
@@ -111,6 +92,9 @@ def User_circuit(problem,depth):#function presents user with available gates and
                 solution.inst(gate)  
             else:
                 print("Gate choice," +  gate + "not available")
+
+    for i in range(qubits):
+        solution.measure(i,i)
         
     return solution
 
@@ -132,11 +116,9 @@ def menu():
       exit()
 
 def user_attempt(problem,problem_stats,depth,qubits):
-    solution = User_circuit(problem,depth)
+    solution = User_circuit(problem,depth,qubits)
     solution_stats = get_dist(solution,qubits)
-    result = Compare_stats(solution_stats,problem_stats)
-    success = Test_for_victory(result,0.95)
-
+    success = Compare_stats(solution_stats,problem_stats)
     return success
 
 def random_circuit():
@@ -144,15 +126,15 @@ def random_circuit():
     depth = int(input("Circuit depth:"))
 
     circa = gen_circuit(qubits,depth)
-    problem = genQUIL(circa)
+    problem = genQUIL(circa,qubits)
     print (problem)
     problem_stats = get_dist(problem,qubits)     #THESE WILL BE REPLACED BY FUNCTIONS WHICH TAKE SOLUTION AND PROBLEM AS INPUTS
     print(problem_stats)
 
     res = user_attempt(problem,problem_stats,depth,qubits)
-    
-    print (res)
+    if res:
+        print("Congratulations, you are correct!")
+    else:
+        print("Incorrect. Try again?")
 
 menu()
-
-
