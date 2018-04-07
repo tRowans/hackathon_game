@@ -81,7 +81,7 @@ def User_circuit(problem,depth):#function presents user with available gates and
         print ('layer',layer)
         print ('Available gates:')
         print(available_gates)
-        gates = input("Please enter solution for layer 1 in format[GATE qubit,GATE qubit]:")
+        gates = input("Please enter gates in layer" + str(layer) + "in format[GATE qubit,GATE qubit]:")
         print()
 
         gates.split(' ', 1)
@@ -92,12 +92,53 @@ def User_circuit(problem,depth):#function presents user with available gates and
                 available_gates.remove(gate.split(' ', 1)[0])  
                 solution.inst(gate)  
             else:
-                print("Gate choices not available")
+                print("Gate choice," +  gate + "not available")
         
     return solution
 
-circa = gen_circuit(3,3)
-problem = genQUIL(circa)
-solution = User_circuit(problem,3)
-print(problem)
-print(solution)
+def menu():
+    print("--------MENU--------")
+    print("Play tutorial (1)")
+    print("Play random (2)")
+    print("Exit (3)")
+    print("--------------------")
+    selection = int(input("Please choose: "))
+
+    if selection == 1:
+       #run the tutorial
+      print("not available yet")
+    if selection == 2:
+      random_circuit()
+    if selection == 3:
+      exit()
+
+def user_attempt(problem,problem_stats):
+    solution = User_circuit(problem,depth)
+    stats_solu = [0.8,0.4,0.7]
+    result = compare_stats(dist_solu,dist_prob)
+    success = test_for_victory(result,0.95)
+
+    return success
+
+def random_circuit():
+    qubits = int(input("Number of qubits:"))
+    depth = int(input("Circuit depth:"))
+    circa = gen_circuit(qubits,depth)
+    problem = genQUIL(circa)
+    solution = User_circuit(problem,depth)
+    problem_stats = [0.6,0.3,0.2]     #THESE WILL BE REPLACED BY FUNCTIONS WHICH TAKE SOLUTION AND PROBLEM AS INPUTS
+    user_attempt(problem,problem_stats)
+    
+
+    if (success = True) :
+       print("Congratulations")
+       menu()  
+    else if (Success = False):
+       choice = input("Unlucky! Would you like to try again? (y/n)
+         if choice == "y":
+               user_attempt()
+         else if choice =="n":
+               exit()
+         else:
+               print("Invalid choice")
+main()
