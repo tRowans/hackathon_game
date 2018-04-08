@@ -7,7 +7,7 @@ from scipy.stats import chisquare
 from random import shuffle
 from gen_levels import *
 
-def layer_input(layer,available_gates,solution):
+def layer_input(layer,available_gates,solution,qubits):
     print()
     print ('layer',layer)
     print ('Available gates:')
@@ -21,21 +21,25 @@ def layer_input(layer,available_gates,solution):
     for gate in gatelist:
         if gate.split(' ')[0] not in available_gates:
             print("Gate choice " + gate + " not available")
-            layer_input(layer,available_gates,solution)
+            layer_input(layer,available_gates,solution,qubits)
         if len(gate.split(' ')) == 1:
             print("All gates must take at least one qubit as an argument")
-            layer_input(layer,available_gates,solution)
+            layer_input(layer,available_gates,solution,qubits)
         for i in gate.split(' ')[1:]:
             try:
                 inti = int(i)
             except ValueError:
                 print("Please enter a valid qubit index")
-                layer_input(layer,available_gates,solution)
+                layer_input(layer,available_gates,solution,qubits)
             if i in used_qubits:
                 print("Qubits may only be used once per layer")
-                layer_input(layer,available_gates,solution)
+                layer_input(layer,available_gates,solution,qubits)
             else:
                 used_qubits.append(i)
+
+    if len(used_qubits) != qubits:
+        print("All qubits must have a gate applied to them")
+        layer_input(layer,available_gates,solution,qubits)
 
     for gate in gatelist: 
         if gate.split(' ')[0] in available_gates: 
@@ -54,7 +58,7 @@ def User_circuit(problem,depth,qubits):#function presents user with available ga
     solution=Program()
 
     for layer in range(depth):
-        solution = layer_input(layer,available_gates,solution)
+        solution = layer_input(layer,available_gates,solution,qubits)
 
     for i in range(qubits):
         solution.measure(i,i)
