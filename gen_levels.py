@@ -8,8 +8,8 @@ from random import shuffle
 
 def gen_layer(gate_shop, qubits):
     layer = []
-    cash = qubits
-    sites = list(range(qubits))
+    cash = len(qubits)
+    sites = qubits.copy()
     while cash > 0:
         pick = random.choice(list(gate_shop.keys()))
         if gate_shop[pick] <= cash:
@@ -22,7 +22,7 @@ def gen_layer(gate_shop, qubits):
     return layer
 
 def gen_circuit(qubits, depth):
-    gate_shop = {I:1, X:1, Z:1, H:1, CNOT:2, SWAP:2} #Gates are keys, costs are values
+    gate_shop = {I:1, X:1, Z:1, H:1, CNOT:2} #Gates are keys, costs are values
     circuit = []
     for i in range(depth):
         circuit.append(gen_layer(gate_shop,qubits))
@@ -35,7 +35,7 @@ def genQUIL(layers,qubits): #takes a list of gates in format [[H(1),I(2)],[H(2),
     for layer in layers:
        program.inst(layer)
     
-    for i in range(qubits):
+    for i in qubits:
         program.measure(i,i)
 
     return program
@@ -47,8 +47,8 @@ def string_checker(string,measurement):
     return 1
 
 def get_dist(program,qubits):
-    bits = [x for x in range(qubits)]
-    strs = [bin(x)[2:].zfill(qubits) for x in range(2**qubits)]
+    bits = [x for x in range(len(qubits))]
+    strs = [bin(x)[2:].zfill(len(qubits)) for x in range(2**len(qubits))]
     probs = []
     qvm = QVMConnection()
     out = qvm.run(program, bits, trials=10000)

@@ -37,7 +37,7 @@ def layer_input(layer,available_gates,solution,qubits):
             else:
                 used_qubits.append(i)
 
-    if len(used_qubits) != qubits:
+    if len(used_qubits) != len(qubits):
         print("All qubits must have a gate applied to them")
         layer_input(layer,available_gates,solution,qubits)
 
@@ -50,7 +50,7 @@ def layer_input(layer,available_gates,solution,qubits):
 def User_circuit(problem,depth,qubits):#function presents user with available gates and makes them create their circuit layer by layer.
 
     available_gates=[]
-    for gate in problem.instructions[:-qubits]:
+    for gate in problem.instructions[:-len(qubits)]:
         available_gates.append(gate.name)
     
     shuffle(available_gates)
@@ -60,7 +60,7 @@ def User_circuit(problem,depth,qubits):#function presents user with available ga
     for layer in range(depth):
         solution = layer_input(layer,available_gates,solution,qubits)
 
-    for i in range(qubits):
+    for i in qubits:
         solution.measure(i,i)
         
     return solution
@@ -134,11 +134,7 @@ def user_attempt(problem,problem_stats,depth,qubits):
         retry(problem,problem_stats,depth,qubits)
 
 def input_qubits():
-    try:
-        in_q = int(input("Number of qubits:"))
-    except ValueError:
-        print("Invalid input")
-        input_qubits()
+    in_q = eval(input("Qubits:"))
     return in_q
 
 def input_depth():
