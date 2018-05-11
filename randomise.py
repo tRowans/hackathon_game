@@ -7,14 +7,15 @@ import math as m
 from scipy.stats import chisquare 
 from pyquil.device import ISA
 
-def gen_H(qu):
-
+def gen_H(qubit_list):
+    choice_list = qubit_list
+    target = random.choice(choice_list)
     prog_H = Program()
-    prog_H.inst(RZ(m.pi/2.0,qu)).inst(RX(m.pi/2.0,qu)).inst(RZ(m.pi/2.0,qu))
+    prog_H.inst(RZ(m.pi/2.0,target)).inst(RX(m.pi/2.0,target)).inst(RZ(m.pi/2.0,target))
 
     return prog_H
 
-def gen_X(qu):
+def gen_X(qubit_list):
 
     prog_X = Program()
     prog_X.inst(RX(-m.pi,qu))
@@ -22,14 +23,26 @@ def gen_X(qu):
     return prog_X
 
 
-def gen_Z(qu):
-
+def gen_Z(qubit_list):
+    choice_list = qubit_list
+    target = random.choice(choice_list)
     prog_Z = Program()
-    prog_Z.inst(RZ(m.pi,qu))
+    prog_Z.inst(RZ(m.pi,target))
 
 
     return prog_Z
 
+def gen_CZ(qubit_list):
+    choice_list = qubit_list
+    target = random.choice(choice_list)
+    choice_list.remove(target)
+    control = random.choice(choice_list)
+
+    prog_Z = Program()
+    prog_Z.inst(CZ(target,control))
+
+
+    return prog_Z
 
 gate_list = [gen_H,gen_X,gen_Z]
 qubit_list = [8]
@@ -42,7 +55,7 @@ for j in range (0,seq_attempts):
     clear_prog = Program()
     sequence = clear_prog
     for i in range (0,seq_length):
-         foo_prog = random.choice(gate_list)(random.choice(qubit_list))
+         foo_prog = random.choice(gate_list)(qubit_list)
          sequence.inst(foo_prog)
 
     sequence_inverse = sequence.dagger()
